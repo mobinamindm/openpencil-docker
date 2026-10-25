@@ -28,7 +28,9 @@ WORKDIR /src
 RUN git clone --depth 1 --branch "${OPENPENCIL_REF}" \
         https://github.com/open-pencil/open-pencil.git .
 
-RUN bun install --frozen-lockfile
+# registry.npmjs.org is slow/unreliable from this datacenter; npmmirror serves
+# identical npm tarballs and is consistently fast here.
+RUN bun install --frozen-lockfile --registry https://registry.npmmirror.com
 
 # Playwright's default CDN (cdn.playwright.dev) geo-blocks this datacenter's
 # IP range (HTTP 403 "not available in your location"). npmmirror serves the

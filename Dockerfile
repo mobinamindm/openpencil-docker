@@ -12,7 +12,7 @@
 # Pin the exact Bun build upstream uses (devcontainer .devcontainer/Dockerfile digest,
 # bun 1.4.2, also the repo's packageManager pin). Newer Bun (1.4.4) breaks Vite's
 # config loader with a 'vite-module-runner:import-meta-resolve' resolution error.
-FROM oven/bun@sha256:9114c0580f1d939c4c8e2c968a3646ce7aebf6ee211c56f88d9239b97ea46fab AS build
+FROM oven/bun:1.4.2 AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 

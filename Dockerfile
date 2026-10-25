@@ -36,7 +36,10 @@ ENV PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=180000
 # Headless Chromium used by the build step that pre-renders demo shaders.
 RUN bunx playwright install --with-deps chromium
 
-RUN bun run build
+# `bun run build` also runs the repo's full type-aware oxlint pass, which is a CI
+# concern: it is extremely RAM-hungry and crashes Bun on small builders. Build the
+# package artifacts and the web bundle only; upstream CI lints every release anyway.
+RUN bun run build:packages && bunx vite build
 
 FROM nginx:1.27-alpine
 

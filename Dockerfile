@@ -41,10 +41,10 @@ ENV PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=180000
 # Headless Chromium used by the build step that pre-renders demo shaders.
 RUN bunx playwright install --with-deps chromium
 
-# Debian's nodejs (20.19+/22+) for running Vite itself.
-RUN apt-get update \
- && apt-get install -y --no-install-recommends nodejs \
- && rm -rf /var/lib/apt/lists/*
+# Real Node.js for the tools whose bins carry Node shebangs (Vite, tsdown).
+# Debian trixie only ships Node 20, which lacks Promise.withResolvers (ES2024)
+# that tsdown calls; take the official Node 22 LTS binary instead.
+COPY --from=node:22-bookworm-slim /usr/local/bin/node /usr/local/bin/node
 
 # tsdown lists `unrun` as an *optional* peer dependency. Bun does not install
 # optional peers (and its on-the-fly auto-install is not reliable inside a build),

@@ -27,6 +27,12 @@ RUN git clone --depth 1 --branch "${OPENPENCIL_REF}" \
 
 RUN bun install --frozen-lockfile
 
+# Playwright's default CDN (cdn.playwright.dev) geo-blocks this datacenter's
+# IP range (HTTP 403 "not available in your location"). npmmirror serves the
+# byte-identical browser builds, so point Playwright's downloader there.
+ENV PLAYWRIGHT_DOWNLOAD_HOST=https://cdn.npmmirror.com/binaries/playwright
+ENV PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=180000
+
 # Headless Chromium used by the build step that pre-renders demo shaders.
 RUN bunx playwright install --with-deps chromium
 

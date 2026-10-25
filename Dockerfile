@@ -46,6 +46,11 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends nodejs \
  && rm -rf /var/lib/apt/lists/*
 
+# tsdown lists `unrun` as an *optional* peer dependency. Bun does not install
+# optional peers (and its on-the-fly auto-install is not reliable inside a build),
+# so tsdown would fail with "Failed to import module 'unrun'". Pin it explicitly.
+RUN bun add --dev unrun --registry https://registry.npmmirror.com
+
 # `bun run build` also runs the repo's full type-aware oxlint pass, which is a CI
 # concern (RAM-hungry, and crashes Bun on small builders); we build package
 # artifacts + the web bundle only, and upstream CI lints every release anyway.

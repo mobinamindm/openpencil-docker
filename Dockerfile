@@ -41,10 +41,19 @@ ENV PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=180000
 # Headless Chromium used by the build step that pre-renders demo shaders.
 RUN bunx playwright install --with-deps chromium
 
+# Debian's nodejs (20.19+/22+) for running Vite itself.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends nodejs \
+ && rm -rf /var/lib/apt/lists/*
+
 # `bun run build` also runs the repo's full type-aware oxlint pass, which is a CI
-# concern: it is extremely RAM-hungry and crashes Bun on small builders. Build the
-# package artifacts and the web bundle only; upstream CI lints every release anyway.
-RUN bun run build:packages && bunx vite build
+# concern (RAM-hungry, and crashes Bun on small builders); we build package
+# artifacts + the web bundle only, and upstream CI lints every release anyway.
+#
+# Vite MUST run on real Node: its `vite` bin carries a Node shebang (that is how
+# upstream CI runs it), and forcing Bun's runtime (bunx) breaks Vite 8's config
+# loader with "Cannot find package 'vite-module-runner:import-meta-resolve'".
+RUN bun run build:packages && "$(command -v node || command -v nodejs)" ./node_modules/vite/bin/vite.js build
 
 FROM nginx:1.27-alpine
 
